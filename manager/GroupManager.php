@@ -70,7 +70,54 @@ class GroupManager extends BaseManager
         return (!empty(array_intersect($projects, $projectsInManagement))) ? true : false;
     }
 
+    private function _getProjectList($projectId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('group')->where(':project_group.project_id', $projectId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getGroup($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getProjectItem($projectId, $groupId)
+    {
+        return $this->_getGroup($this->database->table('group')->where(':project_group.project_id', $projectId)->where("group_id", $groupId)->fetch());
+    }
+
+    public function _groupProjectDelete($projectId, $groupId)
+    {
+        return $this->database->table('project_group')->where('project_id', $projectId)->where('group_id', $groupId)->delete();
+    }
+
+    public function _groupProjectCreate($projectId, $groupId)
+    {
+        return $this->database->table('project_group')->insert(['project_id' => $projectId, 'group_id' => $groupId]);
+    }
+
     /* EXTERNAL METHOD */
+
+    public function getProjectList($projectId)
+    {
+        return $this->_getProjectList($projectId);
+    }
+
+    public function getProjectItem($projectId, $groupId)
+    {
+        return $this->_getProjectItem($projectId, $groupId);
+    }
+
+    public function groupProjectDelete($projectId, $groupId)
+    {
+        return $this->_groupProjectDelete($projectId, $groupId);
+    }
+
+    public function groupProjectCreate($projectId, $groupId)
+    {
+        return $this->_groupProjectCreate($projectId, $groupId);
+    }
 
     public function getById($id)
     {
@@ -85,11 +132,6 @@ class GroupManager extends BaseManager
     public function getUserList($userId, $offset, $limit)
     {
         return $this->_getUserList($userId, $offset, $limit);
-    }
-
-    public function getProjectList($projectId)
-    {
-        return $this->_getProjectList($projectId);
     }
 
     public function canUserEdit($id, $userId)
