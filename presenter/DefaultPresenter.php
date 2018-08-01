@@ -86,7 +86,7 @@ class DefaultPresenter extends GroupBasePresenter
         {
             if (isset($post['name']))
             {
-                $res = $this->groupCRUDManager->update($id, $post['name']);
+                $res = $this->groupCRUDManager->update($id, $post);
                 if (!$res)
                     $this->httpResponse->setCode(Response::S500_INTERNAL_SERVER_ERROR);
             }
@@ -115,6 +115,12 @@ class DefaultPresenter extends GroupBasePresenter
             }
             else
             {
+                if(isset($post['users']))
+                    $this->groupCRUDManager->connectUsers ($ret, $post['users']);
+                
+                if (isset($post["projects"]))
+                    $this->groupCRUDManager->connectProjects ($ret, $post["projects"]);
+                
                 $this->jsonResponse->payload = [];
                 $this->httpResponse->setCode(Response::S201_CREATED);
             }
